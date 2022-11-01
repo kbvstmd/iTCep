@@ -128,7 +128,7 @@ class TCRUtils:
         return phychem_dict
 
     @classmethod
-    def feat_encode(cls, seqs, max_length, encode_dict):  # 对序列使用encode_dict进行编码
+    def feat_encode(cls, seqs, max_length, encode_dict):
         """
         encoding sequences using 'encode_dict'
         :param seqs: sequences to encode
@@ -161,7 +161,7 @@ class TCRUtils:
         aac_encode = []
         for seq in seqs:
             code = []
-            count = Counter(seq)  # dict类型 存储seq中每个氨基酸出现次数
+            count = Counter(seq)
             for key in count:
                 count[key] = count[key] / len(seq)
             for aa in cls.aa_list:
@@ -179,7 +179,6 @@ class TCRUtils:
     @classmethod
     def save_aapp_TCR(cls, pos_data, max_length=21, normal=True):
         """
-        根据每个肽段对应CDR3的位置特征计算氨基酸位置频率，由于CDR3位置1必为C，所以仅计算位置2到位置21的位置频率。
         CDR3 aa distribution feature map. Encoding data with AAPP method.
         :param dataset: dataset which contains positive data
         :param max_length:
@@ -207,7 +206,7 @@ class TCRUtils:
             pep_aapp_dict[pep] = pep_feats_arr
         np.save(cls.file_path + 'encode_data/aapp_dict_tcr.npy', pep_aapp_dict)
 
-    # 编辑距离算法——动态规划实现
+
     @classmethod
     def dp_MED(cls, str1, str2):
         L1 = len(str1) + 1
