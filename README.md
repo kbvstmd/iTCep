@@ -21,7 +21,10 @@ git clone https://github.com/kbvstmd/iTCep/
 ```
 The codes depend on the following packages, please install them before getting started.
 ```
-
+pip install numpy==1.19.5
+pip install pandas==0.25.3
+pip install biopython==1.76
+pip install tensorflow==2.4.1
 ``` 
 The build will likely fail if it can't find them. For more information, see:
 
@@ -47,3 +50,6 @@ python predict.py test/ExampleFile_pep.xlsx mode2
 ```
 **notes:** 
 The prediction results will be saved in the **results/peptides_pred_output.csv** file.
+## 4. Citation
+Please cite the following paper for using iTCep:
+iTCep: a deep learning framework for identification of T cell epitopes by harnessing fusion features.
