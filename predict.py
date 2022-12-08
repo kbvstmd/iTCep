@@ -14,11 +14,11 @@ if __name__ == '__main__':
     file_df = pd.read_excel(file, sheet_name='Sheet1')
     file_df = utils.data_processing(file_df)
     # 2. predicting
-    if sys_args[2] == 'mode1':
+    if sys_args[2] == 'pairs':
         predict_df = predict.model_prediction(file_df, sort=True)
         # 3. save results
         predict_df.to_csv('results/pairs_pred_output.csv', index=False)
-    elif sys_args[2] == 'mode2':
+    elif sys_args[2] == 'peponly':
         file_df = file_df.drop_duplicates(subset=['peptide'])
         peptides = file_df['peptide'].values.tolist()
         predict_df = predict.model_prediction_TCR(peptides)

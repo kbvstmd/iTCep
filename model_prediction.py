@@ -40,9 +40,9 @@ class ModelPrediction:
     def bind_level(cls, predict):
         if predict < 0.50:
             return '/'
-        if 0.50 < predict < 0.80:
+        if 0.50 <= predict < 0.80:
             return 'low'
-        elif 0.80 < predict < 0.95:
+        elif 0.80 <= predict < 0.95:
             return 'medium'
         return 'high'
 
