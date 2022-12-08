@@ -53,7 +53,7 @@ class ModelPrediction:
         seqs_onehot, seqs_aapp = cls.itcep_encode(peptide_seqs, cdr3_seqs)
         file_df['Probability'] = TCR_model.predict([seqs_onehot, seqs_aapp])[:, 1]
         if sort:
-            file_df.sort_values(by="predict", inplace=True, ascending=False)
+            file_df.sort_values(by="Probability", inplace=True, ascending=False)
         file_df['Probability'] = file_df['Probability'].apply(lambda x: round(x, 4))  # 保留两位小数
         file_df['Interaction'] = file_df['Probability'].apply(lambda x: 'yes' if x >= 0.5 else 'no')
         file_df['Binding level'] = file_df['Probability'].apply(lambda x: cls.bind_level(x))
@@ -73,4 +73,5 @@ class ModelPrediction:
         result_df = pd.DataFrame()
         for pep in peptides:
             result_df = pd.concat([result_df, cls.one_pep_result(pep)])
-        return result_df
+        order = ['peptide', 'CDR3', 'Probability', 'Interaction', 'Binding level']
+        return result_df[order]
