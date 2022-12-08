@@ -11,7 +11,7 @@ from tcr_utils import TCRUtils as utils
 class ModelPrediction:
 
     @classmethod
-    def phyAAPP_encode(cls, peptide_seqs, cdr3_seqs):
+    def itcepphyA_encode(cls, peptide_seqs, cdr3_seqs):
         # physicochemical property
         phychem_dict = utils.get_phychem(normal=False)
         pep_feats = utils.feat_encode(peptide_seqs, utils.max_pep_len, phychem_dict)  # (XX, 11, 21)
@@ -24,7 +24,7 @@ class ModelPrediction:
         return seqs_phychem, seqs_aapp_tcr
 
     @classmethod
-    def oneAAPP_encode(cls, peptide_seqs, cdr3_seqs):
+    def itcep_encode(cls, peptide_seqs, cdr3_seqs):
         # onehot
         oneh_dict = utils.get_onehot()
         pep_oneh = utils.feat_encode(peptide_seqs, utils.max_pep_len, oneh_dict)  # (XX, 11, 20)
@@ -37,12 +37,12 @@ class ModelPrediction:
         return seqs_onehot, seqs_aapp_tcr
 
     @classmethod
-    def bind_level(cls, predict):
-        if predict < 0.50:
+    def bind_level(cls, prob):
+        if prob < 0.50:
             return '/'
-        if 0.50 <= predict < 0.80:
+        if 0.50 <= prob < 0.80:
             return 'low'
-        elif 0.80 <= predict < 0.95:
+        elif 0.80 <= prob < 0.95:
             return 'medium'
         return 'high'
 
@@ -50,19 +50,19 @@ class ModelPrediction:
     def model_prediction(cls, file_df, sort=True):
         TCR_model = load_model('models/iTCep.h5')
         peptide_seqs, cdr3_seqs = file_df.peptide.tolist(), file_df.CDR3.tolist()
-        seqs_phychem, seqs_aapp = cls.oneAAPP_encode(peptide_seqs, cdr3_seqs)
-        file_df['predict'] = TCR_model.predict([seqs_phychem, seqs_aapp])[:, 1]
+        seqs_onehot, seqs_aapp = cls.itcep_encode(peptide_seqs, cdr3_seqs)
+        file_df['Probability'] = TCR_model.predict([seqs_onehot, seqs_aapp])[:, 1]
         if sort:
             file_df.sort_values(by="predict", inplace=True, ascending=False)
-        file_df['predict'] = file_df['predict'].apply(lambda x: round(x, 2))  # 保留两位小数
-        file_df['Interaction'] = file_df['predict'].apply(lambda x: 'yes' if x >= 0.5 else 'no')
-        file_df['binding level'] = file_df['predict'].apply(lambda x: cls.bind_level(x))
+        file_df['Probability'] = file_df['Probability'].apply(lambda x: round(x, 4))  # 保留两位小数
+        file_df['Interaction'] = file_df['Probability'].apply(lambda x: 'yes' if x >= 0.5 else 'no')
+        file_df['Binding level'] = file_df['Probability'].apply(lambda x: cls.bind_level(x))
         return file_df
 
     @classmethod
     def one_pep_result(cls, pep):
         print(pep)
-        tcr_df = pd.read_csv('static/unique_CDR3.csv')
+        tcr_df = pd.read_csv('data/unique_CDR3.csv')
         tcr_df['peptide'] = pep
         file_df = cls.model_prediction(tcr_df)
         file_df_10 = file_df.head(10)

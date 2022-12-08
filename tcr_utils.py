@@ -144,68 +144,6 @@ class TCRUtils:
             seq_feats.append(f_seq)
         return np.array(seq_feats)
 
-    @classmethod
-    def onehot_encode(cls, seqs, max_length):
-        oneh_dict = cls.get_onehot()
-        return cls.feat_encode(seqs, max_length, oneh_dict)  # (XX, max_length, 20)
-
-    @classmethod
-    def aac_encode(cls, seqs):
-        """
-        Amino Acid Composition encoding of protein sequences
-        :param seqs: sequences to be encoded
-        :param max_length: the maximum length of the encoded sequences
-        :param normal: normalize the feature values if 'normal' is True
-        :return aac_encode:
-        """
-        aac_encode = []
-        for seq in seqs:
-            code = []
-            count = Counter(seq)
-            for key in count:
-                count[key] = count[key] / len(seq)
-            for aa in cls.aa_list:
-                code.append(count[aa])
-            aac_encode.append(code)
-        aac_encode = np.array(aac_encode)
-        aac_encode = np.reshape(aac_encode, (aac_encode.shape[0], 1, aac_encode.shape[1]))
-        return aac_encode
-
-    @classmethod
-    def phychem_encode(cls, seqs, max_length):
-        phychem_dict = cls.get_phychem(normal=True)
-        return cls.feat_encode(seqs, max_length, phychem_dict)  # (XX, max_length, 21)
-
-    @classmethod
-    def save_aapp_TCR(cls, pos_data, max_length=21, normal=True):
-        """
-        CDR3 aa distribution feature map. Encoding data with AAPP method.
-        :param dataset: dataset which contains positive data
-        :param max_length:
-        :param normal: Normalize the feature values if 'normal' is True
-        :return:
-        """
-        pos_peps = list(set(pos_data['peptide']))
-        pos_data['CDR3_emb'] = pos_data['CDR3'].apply(lambda r: r.ljust(max_length, 'X'))
-        pep_aapp_dict = {}
-        for pep in pos_peps:
-            CDR3_df = pos_data[pos_data['peptide'] == pep].copy()
-            CDR3_df = CDR3_df['CDR3_emb'].str.split("", n=max_length, expand=True)
-            feats_dict = {}
-            for i in range(2, max_length + 1):
-                aa_rate_dict = dict(zip(cls.aa_list, [0] * len(cls.aa_list)))  # 初始化为0
-                list0 = CDR3_df[i]
-                counter = Counter(list0)
-                for c in counter.keys():
-                    if c != 'X':
-                        aa_rate_dict[c] = counter[c] / len(list0)
-                feats_dict['pos' + str(i)] = aa_rate_dict
-            pep_feats_arr = pd.DataFrame(feats_dict).values
-            if normal:
-                pep_feats_arr = cls.set_normalization(pep_feats_arr)
-            pep_aapp_dict[pep] = pep_feats_arr
-        np.save(cls.file_path + 'encode_data/aapp_dict_tcr.npy', pep_aapp_dict)
-
 
     @classmethod
     def dp_MED(cls, str1, str2):
@@ -241,7 +179,7 @@ class TCRUtils:
         :return: Amino Acid Position Preference encode for CDR3 response to a particular peptide
         """
         aapp_encode = []
-        aapp_dict_tcr = np.load(cls.file_path + 'encode_data/aapp_dict_tcr.npy', allow_pickle=True).item()
+        aapp_dict_tcr = np.load(cls.file_path + 'aapp_dict_tcr.npy', allow_pickle=True).item()
         for seq in seqs:
             feats_arr = aapp_dict_tcr[seq] if seq in aapp_dict_tcr.keys() else aapp_dict_tcr[
                 cls.similar_peptide(seq, list(aapp_dict_tcr.keys()))]
