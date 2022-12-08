@@ -33,9 +33,9 @@ The build will likely fail if it can't find them. For more information, see:
 Please refer to document **'Example_file.xlsx'** in 'static' directory for the format of the input file. Column names are not allowed to change.
 Run the following codes to perform the prediction.
 ```
-python predict.py /path/to/input_file.xlsx mode1
+python predict.py /path/to/input_file.xlsx pairs
 # eg:
-python predict.py test/ExampleFile.xlsx mode1
+python predict.py test/ExampleFile.xlsx pairs
 ```
 **notes:** 
 The prediction results will be saved in the **results/pairs_pred_output.csv** file.
@@ -44,9 +44,9 @@ The prediction results will be saved in the **results/pairs_pred_output.csv** fi
 Please refer to document **'Example_file_pep.xlsx'** in 'static' directory for the format of the input file. Column names are not allowed to change.
 Run the following codes to perform the prediction.
 ```
-python predict.py /path/to/input_file.xlsx mode2
+python predict.py /path/to/input_file.xlsx peponly
 # eg:
-python predict.py test/ExampleFile_pep.xlsx mode2
+python predict.py test/ExampleFile_pep.xlsx peponly
 ```
 **notes:** 
 The prediction results will be saved in the **results/peptides_pred_output.csv** file.
