@@ -47,11 +47,11 @@ class ModelPrediction:
         return 'high'
 
     @classmethod
-    def model_prediction(cls, file_df, sort=True):
-        TCR_model = load_model('models/iTCep.h5')
+    def model_prediction(cls, file_df, model, sort=True):
+        TCR_model = load_model('models/' + model + '.h5')
         peptide_seqs, cdr3_seqs = file_df.peptide.tolist(), file_df.CDR3.tolist()
-        seqs_onehot, seqs_aapp = cls.itcep_encode(peptide_seqs, cdr3_seqs)
-        file_df['Probability'] = TCR_model.predict([seqs_onehot, seqs_aapp])[:, 1]
+        seqs_feat1, seqs_feat2 = cls.itcep_encode(peptide_seqs, cdr3_seqs) if model == 'iTCep' else cls.itcepphyA_encode(peptide_seqs, cdr3_seqs)
+        file_df['Probability'] = TCR_model.predict([seqs_feat1, seqs_feat2])[:, 1]
         if sort:
             file_df.sort_values(by="Probability", inplace=True, ascending=False)
         file_df['Probability'] = file_df['Probability'].apply(lambda x: round(x, 4))  # 保留两位小数
@@ -60,18 +60,18 @@ class ModelPrediction:
         return file_df
 
     @classmethod
-    def one_pep_result(cls, pep):
+    def one_pep_result(cls, pep, model):
         print(pep)
         tcr_df = pd.read_csv('data/unique_CDR3.csv')
         tcr_df['peptide'] = pep
-        file_df = cls.model_prediction(tcr_df)
+        file_df = cls.model_prediction(tcr_df, model)
         file_df_10 = file_df.head(10)
         return file_df_10  # 取预测值排名前10的序列对
 
     @classmethod
-    def model_prediction_TCR(cls, peptides):
+    def model_prediction_TCR(cls, peptides, model):
         result_df = pd.DataFrame()
         for pep in peptides:
-            result_df = pd.concat([result_df, cls.one_pep_result(pep)])
+            result_df = pd.concat([result_df, cls.one_pep_result(pep, model)])
         order = ['peptide', 'CDR3', 'Probability', 'Interaction', 'Binding level']
         return result_df[order]

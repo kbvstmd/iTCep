@@ -34,21 +34,14 @@ class TCRUtils:
         dataset = pd.read_csv(data_file)
         peptide_seqs = dataset.peptide.tolist()
         cdr3_seqs = dataset.CDR3.tolist()
-        labels = dataset.label.tolist()
-        return peptide_seqs, cdr3_seqs, labels
-
-    @classmethod
-    def load_encode(cls, path, name):
-        features = np.load(cls.file_path + path + '/seqs_' + name + '.npy')
-        # features = features.reshape((len(features), features.shape[1], features.shape[2], 1))
-        return features
+        return peptide_seqs, cdr3_seqs
 
     @classmethod
     def data_processing(cls, data_df, pos_data=None):
         """
         Drop data which are missing, duplicate or with wrong format.
-        :param pos_data: the dataset is positive or not
         :param dataset: dataset to be processed
+        :param pos_data: set the dataset to positive or not
         :return: processed dataset
         """
         dataset = data_df.copy()
@@ -58,7 +51,7 @@ class TCRUtils:
         dataset.loc[:, 'peptide'] = dataset['peptide'].apply(cls.delete_space)
         dataset.loc[:, 'CDR3'] = dataset['CDR3'].apply(cls.delete_space)
         # drop duplicate
-        dataset = dataset.drop_duplicates(subset=['peptide', 'CDR3'])
+        # dataset = dataset.drop_duplicates(subset=['peptide', 'CDR3'])
         # keep peptides between 8 and 11 in length
         dataset = dataset[dataset['peptide'].str.contains(r'^[A-Z]{7,10}[A-Z]$')]
         # drop TCRs longer than 21 and that do not start with C and end with F
@@ -72,6 +65,15 @@ class TCRUtils:
             positive_col_name.insert(0, 'label')
             dataset = dataset.reindex(columns=positive_col_name)
             dataset['label'] = 1 if pos_data else 0
+        return dataset
+
+    @classmethod
+    def peptide_processing(cls, pep_df):
+        dataset = pep_df.copy()
+        dataset = dataset.dropna()
+        dataset.loc[:, 'peptide'] = dataset['peptide'].apply(cls.delete_space)
+        dataset = dataset[dataset['peptide'].str.contains(r'^[A-Z]{7,10}[A-Z]$')]
+        dataset = dataset[~dataset['peptide'].str.contains(r'[B]|[J]|[O]|[U]|[X]|[Z]')]
         return dataset
 
     @classmethod
