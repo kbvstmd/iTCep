@@ -24,7 +24,8 @@ The codes depend on the following packages, please install them before getting s
 pip install numpy==1.19.5
 pip install pandas==0.25.3
 pip install biopython==1.76
-pip install tensorflow==2.4.1
+pip install tensorflow==2.4.0
+pip install xrld==1.2.0
 ``` 
 The build will likely fail if it can't find them. For more information, see:
 
