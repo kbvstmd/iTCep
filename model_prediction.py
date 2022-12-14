@@ -11,30 +11,46 @@ from tcr_utils import TCRUtils as utils
 class ModelPrediction:
 
     @classmethod
-    def itcepphyA_encode(cls, peptide_seqs, cdr3_seqs):
+    def phychem_encode(cls, peptide_seqs, cdr3_seqs):
         # physicochemical property
         phychem_dict = utils.get_phychem(normal=False)
         pep_feats = utils.feat_encode(peptide_seqs, utils.max_pep_len, phychem_dict)  # (XX, 11, 21)
         cdr3_feats = utils.feat_encode(cdr3_seqs, utils.max_cdr3_len, phychem_dict)  # (XX, 21, 21)
         seqs_phychem = np.concatenate((pep_feats, cdr3_feats), axis=1)  # (XX, 32, 21)
         seqs_phychem = seqs_phychem.reshape((len(seqs_phychem), seqs_phychem.shape[1], seqs_phychem.shape[2], 1))
-        # AAPP
-        seqs_aapp_tcr = utils.aapp_encode_TCR(peptide_seqs)  # (XX, 20, 20)
-        seqs_aapp_tcr = seqs_aapp_tcr.reshape((len(seqs_aapp_tcr), seqs_aapp_tcr.shape[1], seqs_aapp_tcr.shape[2], 1))
-        return seqs_phychem, seqs_aapp_tcr
+        return seqs_phychem
 
     @classmethod
-    def itcep_encode(cls, peptide_seqs, cdr3_seqs):
+    def onehot_encode(cls, peptide_seqs, cdr3_seqs):
         # onehot
         oneh_dict = utils.get_onehot()
         pep_oneh = utils.feat_encode(peptide_seqs, utils.max_pep_len, oneh_dict)  # (XX, 11, 20)
         cdr3_oneh = utils.feat_encode(cdr3_seqs, utils.max_cdr3_len, oneh_dict)  # (XX, 21, 20)
         seqs_onehot = np.concatenate((pep_oneh, cdr3_oneh), axis=1)  # (XX, 32, 20)
         seqs_onehot = seqs_onehot.reshape((len(seqs_onehot), seqs_onehot.shape[1], seqs_onehot.shape[2], 1))
+        return seqs_onehot
+
+    @classmethod
+    def AAPP_encode(cls, peptide_seqs, mode):
         # AAPP
-        seqs_aapp_tcr = utils.aapp_encode_TCR(peptide_seqs)  # (XX, 20, 20)
-        seqs_aapp_tcr = seqs_aapp_tcr.reshape((len(seqs_aapp_tcr), seqs_aapp_tcr.shape[1], seqs_aapp_tcr.shape[2], 1))
-        return seqs_onehot, seqs_aapp_tcr
+        if mode == 'pairs':
+            seqs_aapp = utils.aapp_encode_TCR(peptide_seqs)  # (XX, 20, 20)
+            seqs_aapp = seqs_aapp.reshape((len(seqs_aapp), seqs_aapp.shape[1], seqs_aapp.shape[2], 1))
+        else:
+            aapp_dict_tcr = np.load(utils.file_path + 'aapp_dict_tcr.npy', allow_pickle=True).item()
+            seq = peptide_seqs[0]
+            feats_arr = aapp_dict_tcr[seq] if seq in aapp_dict_tcr.keys() else aapp_dict_tcr[utils.similar_peptide(seq, list(aapp_dict_tcr.keys()))]
+            aapp_encode = [feats_arr.T] * len(peptide_seqs)
+            seqs_aapp = np.array(aapp_encode)
+        return seqs_aapp
+
+    @classmethod
+    def itcepphyA_encode(cls, peptide_seqs, cdr3_seqs, mode='pairs'):
+        return cls.phychem_encode(peptide_seqs, cdr3_seqs), cls.AAPP_encode(peptide_seqs, mode)
+
+    @classmethod
+    def itcep_encode(cls, peptide_seqs, cdr3_seqs, mode='pairs'):
+        return cls.onehot_encode(peptide_seqs, cdr3_seqs), cls.AAPP_encode(peptide_seqs, mode)
 
     @classmethod
     def bind_level(cls, prob):
@@ -47,10 +63,10 @@ class ModelPrediction:
         return 'high'
 
     @classmethod
-    def model_prediction(cls, file_df, model, sort=True):
+    def model_prediction(cls, file_df, model, mode='peponly', sort=True):
         TCR_model = load_model('models/' + model + '.h5')
         peptide_seqs, cdr3_seqs = file_df.peptide.tolist(), file_df.CDR3.tolist()
-        seqs_feat1, seqs_feat2 = cls.itcep_encode(peptide_seqs, cdr3_seqs) if model == 'iTCep' else cls.itcepphyA_encode(peptide_seqs, cdr3_seqs)
+        seqs_feat1, seqs_feat2 = cls.itcep_encode(peptide_seqs, cdr3_seqs, mode) if model == 'iTCep' else cls.itcepphyA_encode(peptide_seqs, cdr3_seqs, mode)
         file_df['Probability'] = TCR_model.predict([seqs_feat1, seqs_feat2])[:, 1]
         if sort:
             file_df.sort_values(by="Probability", inplace=True, ascending=False)
@@ -64,7 +80,7 @@ class ModelPrediction:
         print(pep)
         tcr_df = pd.read_csv('data/unique_CDR3.csv')
         tcr_df['peptide'] = pep
-        file_df = cls.model_prediction(tcr_df, model)
+        file_df = cls.model_prediction(file_df=tcr_df, model=model, mode='peponly')
         file_df_10 = file_df.head(10)
         return file_df_10  # 取预测值排名前10的序列对
 
