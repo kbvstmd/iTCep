@@ -24,32 +24,50 @@ The codes depend on the following packages, please install them before getting s
 pip install numpy==1.19.5
 pip install pandas==0.25.3
 pip install biopython==1.76
-pip install tensorflow==2.4.1
+pip install tensorflow==2.4.0
+pip install xrld==1.2.0
 ``` 
 The build will likely fail if it can't find them. For more information, see:
 
 ## 3. Usage
-### 3.1 peptide-TCR pairs prediction:
-Please refer to document **'Example_file.xlsx'** in 'static' directory for the format of the input file. Column names are not allowed to change.
-Run the following codes to perform the prediction.
-```
-python predict.py /path/to/input_file.xlsx pairs
-# eg:
-python predict.py test/ExampleFile.xlsx pairs
-```
-**notes:** 
-The prediction results will be saved in the **results/pairs_pred_output.csv** file.
+### 3.1 Data Format
+Below is an example input data to show the required format:
 
-### 3.2 peptide only prediction:
-Please refer to document **'Example_file_pep.xlsx'** in 'static' directory for the format of the input file. Column names are not allowed to change.
+| peptide     | CDR3             |
+| :---:       | :---:            |
+| RAKFKQLL    | CSVGGVSSGVYNEQF  |
+| VYAWNRKRI   | CSAKGMMNTEAFF    |
+| CRVLCCYVL   | CASSDSTGVNEQFF   |
+| NLNCCSVPV   | CASSLGGASGSLSNEQFF |
+| ELAGIGILTV  | CASSYSATGGEQYF   |
+| WMRLLPLL    | CASRDQTGGEQFF    |
+### 3.2 Parameters
+- `input`: This parameter specifies the input files for the T-cell epitope prediction. ".csv" and ".xlsx" type of file are both supported. 
+- `mode`: This parameter specifies the prediction mode, i.e., whether to predict pairs of T-cell epitopes and their corresponding TCRs ("pairs" / "peponly"). Default parameter value is "pairs".
+- `model`: This parameter specifies the prediction model to be used for your T-cell epitope prediction. In this tool, you have two options for the model parameter: "iTCep" or "iTCep-PhyA".
+- `dup`: This parameter specifies whether to remove duplicates from the prediction results ("True"/"False"). Default parameter value is "True".
+- `outpt`: This parameter specifies the output file name or directory for the prediction results. In general, the file format is commonly '.csv'.
+### 3.2 peptide-TCR pairs prediction:
+Please refer to document `Example_file.xlsx` in `test` directory for the format of the input file. Column names are not allowed to change.
 Run the following codes to perform the prediction.
 ```
-python predict.py /path/to/input_file.xlsx peponly
+python predict.py --input /path/to/input_file --output /path/to/output_file
 # eg:
-python predict.py test/ExampleFile_pep.xlsx peponly
+python predict.py --input test/ExampleFile.xlsx --output results/pairs_pred_output.csv
 ```
 **notes:** 
-The prediction results will be saved in the **results/peptides_pred_output.csv** file.
+The prediction results will be saved in the `results/pairs_pred_output.csv` file.
+
+### 3.3 peptide only prediction:
+Please refer to document `Example_file_pep.xlsx` in `test` directory for the format of the input file. Column names are not allowed to change.
+Run the following codes to perform the prediction.
+```
+python predict.py --input /path/to/input_file --mode peponly --output /path/to/output_file
+# eg:
+python predict.py --input test/ExampleFile_pep.xlsx --mode peponly --output results/peptides_pred_output.csv
+```
+**notes:** 
+The prediction results will be saved in the `results/peptides_pred_output.csv` file.
 ## 4. Citation
 Please cite the following paper for using iTCep:
 iTCep: a deep learning framework for identification of T cell epitopes by harnessing fusion features.
