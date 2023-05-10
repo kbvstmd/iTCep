@@ -24,19 +24,17 @@ if __name__ == '__main__':
     file_class = file.split('.')[-1]
     if file_class == 'csv':
         file_df = pd.read_csv(file)
-        file_df = utils.peptide_processing(file_df)
-        if args.dup == 'y':
-            file_df = file_df.drop_duplicates()
     elif file_class == 'xlsx':
         file_df = pd.read_excel(file, sheet_name='Sheet1')
-        file_df = utils.data_processing(file_df)
-        if args.dup == 'y':
-            file_df = file_df.drop_duplicates(subset=['peptide', 'CDR3'])
     else:
         print('Parameters error: Unsupported file format!')
         exit(1)
+    # 2. processing data
+    file_df = utils.data_processing(file_df) if args.mode == 'pairs' else utils.peptide_processing(file_df)
+    if args.dup == 'y':
+        file_df = file_df.drop_duplicates()
     outfile = args.output if args.output.split('.')[-1] == 'csv' else args.output + '.csv'
-    # 2. predicting
+    # 3. predicting
     model_list = ['iTCep', 'iTCep-PhyA']
     if args.model in model_list:
         if args.mode == 'pairs':
