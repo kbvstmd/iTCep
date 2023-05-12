@@ -55,7 +55,7 @@ python predict.py --input /path/to/input_file --output /path/to/output_file
 python predict.py --input test/ExampleFile.xlsx --output results/pairs_pred_output.csv
 ```
 **notes:** 
-The prediction results will be saved in the `results/pairs_pred_output.csv` file.
+The prediction results obtained using the above example command will be saved in the `results/pairs_pred_output.csv` file.
 
 ### 3.3 peptide only prediction:
 Please refer to document `Example_file_pep.xlsx` in `test` directory for the format of the input file. Column names are not allowed to change.
@@ -66,7 +66,7 @@ python predict.py --input /path/to/input_file --mode peponly --output /path/to/o
 python predict.py --input test/ExampleFile_pep.xlsx --mode peponly --output results/peptides_pred_output.csv
 ```
 **notes:** 
-The prediction results will be saved in the `results/peptides_pred_output.csv` file.
+The prediction results obtained using the above example command will be saved in the `results/peptides_pred_output.csv` file.
 ## 4. Citation
-Please cite the following paper for using iTCep:
-iTCep: a deep learning framework for identification of T cell epitopes by harnessing fusion features.
+When using our results or modelling approach in a publication, please cite our paper:  
+[https://www.frontiersin.org/articles/10.3389/fgene.2023.1141535/](https://www.frontiersin.org/articles/10.3389/fgene.2023.1141535/full)
