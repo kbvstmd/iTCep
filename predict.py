@@ -11,7 +11,6 @@ from tcr_utils import TCRUtils as utils
 parser = argparse.ArgumentParser(description='manual to iTCep')
 parser.add_argument("--input", type=str)
 parser.add_argument("--mode", type=str, default="pairs")
-parser.add_argument("--model", type=str, default="iTCep")
 parser.add_argument("--dup", type=str, default="y")
 parser.add_argument("--output", type=str, default="results/iTCep_pred_output.csv")
 
@@ -35,22 +34,17 @@ if __name__ == '__main__':
         file_df = file_df.drop_duplicates(subset=['peptide']) if args.mode == 'peponly' else file_df.drop_duplicates(subset=['peptide', 'CDR3'])
     outfile = args.output if args.output.split('.')[-1] == 'csv' else args.output + '.csv'
     # 3. predicting
-    model_list = ['iTCep', 'iTCep-PhyA']
-    if args.model in model_list:
-        if args.mode == 'pairs':
-            predict_df = predict.model_prediction(file_df, args.model, sort=True)
-            # 3. save results
-            predict_df.to_csv(outfile, index=False)
-        elif args.mode == 'peponly':
-            peptides = file_df.peptide.tolist()
-            predict_df = predict.model_prediction_TCR(peptides, args.model)
-            # 3. save results
-            predict_df.to_csv(outfile, index=False)
-        else:
-            print('Parameters error: Mode unsupported by iTCep!')
-            exit(1)
+    if args.mode == 'pairs':
+        predict_df = predict.model_prediction(file_df, sort=True)
+        # 3. save results
+        predict_df.to_csv(outfile, index=False)
+    elif args.mode == 'peponly':
+        peptides = file_df.peptide.tolist()
+        predict_df = predict.model_prediction_TCR(peptides)
+        # 3. save results
+        predict_df.to_csv(outfile, index=False)
     else:
-        print('Parameters error: Unsupported model name!')
+        print('Parameters error: Mode unsupported by iTCep!')
         exit(1)
     # print success message
     print('Success! The The iTCep program has been successfully executed.')
