@@ -44,7 +44,6 @@ Below is an example input data to show the required format:
 ### 3.2 Parameters
 - `input`: This parameter specifies the input files for the T-cell epitope prediction. ".csv" and ".xlsx" type of file are both supported. 
 - `mode`: This parameter specifies the prediction mode, i.e., whether to predict pairs of T-cell epitopes and their corresponding TCRs ("pairs" / "peponly"). Default parameter value is "pairs".
-- `model`: This parameter specifies the prediction model to be used for your T-cell epitope prediction. In this tool, you have two options for the model parameter: "iTCep" or "iTCep-PhyA".
 - `dup`: This parameter specifies whether to remove duplicates from the prediction results ("True"/"False"). Default parameter value is "True".
 - `outpt`: This parameter specifies the output file name or directory for the prediction results. In general, the file format is commonly '.csv'.
 ### 3.2 peptide-TCR pairs prediction:
