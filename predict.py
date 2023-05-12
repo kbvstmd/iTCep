@@ -32,7 +32,7 @@ if __name__ == '__main__':
     # 2. processing data
     file_df = utils.data_processing(file_df) if args.mode == 'pairs' else utils.peptide_processing(file_df)
     if args.dup == 'y':
-        file_df = file_df.drop_duplicates()
+        file_df = file_df.drop_duplicates(subset=['peptide']) if args.mode == 'peponly' else file_df.drop_duplicates(subset=['peptide', 'CDR3'])
     outfile = args.output if args.output.split('.')[-1] == 'csv' else args.output + '.csv'
     # 3. predicting
     model_list = ['iTCep', 'iTCep-PhyA']

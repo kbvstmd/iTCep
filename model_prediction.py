@@ -63,7 +63,7 @@ class ModelPrediction:
         return 'high'
 
     @classmethod
-    def model_prediction(cls, file_df, model, mode='peponly', sort=True):
+    def model_prediction(cls, file_df, model, mode='pairs', sort=True):
         TCR_model = load_model('models/' + model + '.h5')
         peptide_seqs, cdr3_seqs = file_df.peptide.tolist(), file_df.CDR3.tolist()
         seqs_feat1, seqs_feat2 = cls.itcep_encode(peptide_seqs, cdr3_seqs, mode) if model == 'iTCep' else cls.itcepphyA_encode(peptide_seqs, cdr3_seqs, mode)
