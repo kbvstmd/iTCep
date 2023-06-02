@@ -45,7 +45,7 @@ Below is an example input data to show the required format:
 - `input`: This parameter specifies the input files for the T-cell epitope prediction. ".csv" and ".xlsx" type of file are both supported. 
 - `mode`: This parameter specifies the prediction mode, i.e., whether to predict pairs of T-cell epitopes and their corresponding TCRs ("pairs" / "peponly"). Default parameter value is "pairs".
 - `dup`: This parameter specifies whether to remove duplicates from the prediction results ("True"/"False"). Default parameter value is "True".
-- `outpt`: This parameter specifies the output file name or directory for the prediction results. In general, the file format is commonly '.csv'.
+- `output`: This parameter specifies the output file name or directory for the prediction results. In general, the file format is commonly '.csv'.
 ### 3.2 peptide-TCR pairs prediction:
 Please refer to document `Example_file.xlsx` in `test` directory for the format of the input file. Column names are not allowed to change.
 Run the following codes to perform the prediction.
@@ -69,4 +69,5 @@ python predict.py --input test/ExampleFile_pep.xlsx --mode peponly --output resu
 The prediction results obtained using the above example command will be saved in the `results/peptides_pred_output.csv` file.
 ## 4. Citation
 When using our results or modelling approach in a publication, please cite our paper:  
+Zhang Y, Jian X, Xu L, Zhao J, Lu M, Lin Y and Xie L (2023) iTCep: a deep learning framework for identification of T cell epitopes by harnessing fusion features. Front. Genet. 14:1141535. doi: 10.3389/fgene.2023.1141535  
 [https://www.frontiersin.org/articles/10.3389/fgene.2023.1141535/](https://www.frontiersin.org/articles/10.3389/fgene.2023.1141535/full)
